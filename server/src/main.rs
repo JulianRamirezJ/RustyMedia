@@ -3,11 +3,12 @@ use std::io::{self,Read, Write};
 use std::net::{TcpListener,TcpStream};
 use std::thread;
 use std::path::PathBuf;
+use tar::Archive;
 
 fn handle_emisor(mut socket: TcpStream) -> io::Result<()> {
-    let file_path = "screenshot.png";
+    let file_path = "screenshot.tar";
     let output_file_path = PathBuf::from(&file_path);
-    let mut output_file = File::create(output_file_path)?;
+    let mut output_file = File::create(output_file_path.clone())?;
     println!("Recibiendo archivo: {}", file_path);
 
     loop {
@@ -20,7 +21,14 @@ fn handle_emisor(mut socket: TcpStream) -> io::Result<()> {
             Err(_e) => break,
         }
     }
-    println!("Archivo recibido correctamente: {}", file_path);
+    let file_path_unpacked = "screenshot.png";
+    let output_file_path_unpacked = PathBuf::from(&file_path_unpacked);
+    let tar_file = File::open(output_file_path)?;
+    let mut archive = Archive::new(tar_file);
+    //archive.unpack(".")?;
+    archive.unpack(output_file_path_unpacked)?;
+
+    println!("Archivo descomprimido correctamente: {}", file_path_unpacked);
     Ok(())
 }
 
@@ -45,5 +53,6 @@ fn main() -> io::Result<()> {
             }
         }
     }
+    
     Ok(())
 }

@@ -2,6 +2,8 @@ use std::env;
 use std::fs::File;
 use std::io::{self,Read, Write};
 use std::net::{TcpListener,TcpStream};
+use flate2::write::GzEncoder;
+use flate2::Compression;
 
 fn main() -> io::Result<()> {
     let args: Vec<String> = env::args().collect();
@@ -23,8 +25,12 @@ fn main() -> io::Result<()> {
     let mut socket = TcpStream::connect((dest_ip, dest_port))?;
     println!("Conectado a {}", socket.peer_addr()?);
 
+    let mut encoder = GzEncoder::new(Vec::new(), Compression::default());
+    encoder.write_all(&buffer)?;
+    let compressed_data = encoder.finish()?;
+
     // Enviar el archivo en fragmentos
-    for chunk in buffer.chunks(250 * 1024) {
+    for chunk in compressed_data.chunks(250 * 1024) {
         socket.write_all(chunk)?;
     }
 
