@@ -1,13 +1,16 @@
 use std::fs::File;
+use std::fs;
 use std::io::{self,Read, Write};
 use std::net::{TcpListener,TcpStream};
 use std::thread;
 use std::path::PathBuf;
+use tar::Archive;
+use flate2::read::GzDecoder;
 
 fn handle_emisor(mut socket: TcpStream) -> io::Result<()> {
-    let file_path = "screenshot.png";
+    let file_path = "tmp.tar.gz";
     let output_file_path = PathBuf::from(&file_path);
-    let mut output_file = File::create(output_file_path)?;
+    let mut output_file = File::create(output_file_path.clone())?;
     println!("Recibiendo archivo: {}", file_path);
 
     loop {
@@ -20,7 +23,13 @@ fn handle_emisor(mut socket: TcpStream) -> io::Result<()> {
             Err(_e) => break,
         }
     }
-    println!("Archivo recibido correctamente: {}", file_path);
+    let tar_file = File::open(file_path)?;
+    let tar = GzDecoder::new(tar_file);
+    let mut archive = Archive::new(tar);
+    archive.unpack("./received")?;
+    fs::remove_file(&file_path)?;
+
+    println!("Archivo descomprimido correctamente: {}", file_path);
     Ok(())
 }
 
@@ -45,5 +54,6 @@ fn main() -> io::Result<()> {
             }
         }
     }
+    
     Ok(())
 }
