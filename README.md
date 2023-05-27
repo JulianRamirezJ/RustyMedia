@@ -14,6 +14,7 @@ Upon receiving a file from a client, the server decompresses the file using Gzip
 By using Gzip compression, the program achieves efficient file transfer by reducing the size of the transmitted data. This helps optimize network bandwidth utilization and minimize transfer times.
 
 Overall, this file transfer system showcases key concepts in Rust programming, such as concurrent processing with threads, TCP socket communication, and file compression using Gzip.
+![FinalProyectOS](https://github.com/JulianRamirezJ/RustyMedia/assets/57159295/291e215e-8659-47ee-a072-381a9cfa9f8e)
 
 ## Compression & Decompression
 To do the compression and decompression of archives we used the crate flate2, then compress the archives in a temporaly archive with a format .tar.gz in the client-side to send the information to the server-side, once the information reach the server, is allocated in a temporaly archive .tar.gz to proceed with the decompression of the content into a folder called "received".
